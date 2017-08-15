@@ -237,30 +237,6 @@ class GeoConverter {
             }
         }
         
-        // 사용하지 않는 코드 (단위 테스트 통과 후 삭제 예정)
-        //        func getXY() throws -> (Double, Double) {
-        //            if 0 != geoCoordDatas[destination]!.ind {
-        //                let b = cosForInputPointY * sin(deltaLongitude)
-        //
-        //                if abs(abs(b) - 1) < espln {
-        //                    throw converterError.infinity
-        //                }
-        //            } else {
-        //                let b = 0.0
-        //                let x: Double = 0.5 * geoCoordDatas[destination]!.major * geoCoordDatas[destination]!.scaleFactor * log((1 + b) / (1 - b))
-        //                let con = acos(cosForInputPointY * cos(deltaLongitude) / sqrt(1 - b * b))
-        //
-        //                if inputPoint.y < 0 {
-        //                    let y: Double = geoCoordDatas[destination]!.major * geoCoordDatas[destination]!.scaleFactor * (-con - geoCoordDatas[destination]!.latitudeCenter)
-        //                    return (x, y)
-        //                } else {
-        //                    return (x, 0)
-        //                }
-        //            }
-        //
-        //            return (0, 0)
-        //        }
-        
         let al = cosForInputPointY * deltaLongitude
         let als = al * al
         let c = geoCoordDatas[destination]!.esp * cosForInputPointY * cosForInputPointY
