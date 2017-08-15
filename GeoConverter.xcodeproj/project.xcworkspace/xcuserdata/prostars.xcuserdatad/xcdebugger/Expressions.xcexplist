@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "GeoConverter.geodeticToTm(destination : MapProjectionType, inputPoint : GeographicPoint) -&gt; GeographicPoint?:GeoConverter.swift">
+      </ContextState>
+      <ContextState
+         contextName = "GeoConverter.init() -&gt; GeoConverter:GeoConverter.swift">
+      </ContextState>
+      <ContextState
+         contextName = "GeoConverter.(convert(sourceType : MapProjectionType, destinationType : MapProjectionType, geoPoint : GeographicPoint) -&gt; GeographicPoint?).(closure #2):GeoConverter.swift">
+      </ContextState>
+      <ContextState
+         contextName = "GeoConverterTests.(testConvertGeoToTm() -&gt; ()).(implicit closure #4):GeoConverterTests.swift">
+      </ContextState>
+      <ContextState
+         contextName = "GeoConverter.convert(sourceType : MapProjectionType, destinationType : MapProjectionType, geoPoint : GeographicPoint) -&gt; GeographicPoint?:GeoConverter.swift">
+      </ContextState>
+      <ContextState
+         contextName = "GeoConverter.(tmToGeodetic(source : MapProjectionType, inputPoint : GeographicPoint) -&gt; GeographicPoint?).(closure #1):GeoConverter.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "geoCoordDatas[source]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>
