@@ -9,9 +9,9 @@
 import Foundation
 
 struct GeographicPoint {
-    var x: Double
-    var y: Double
-    var z: Double
+    let x: Double
+    let y: Double
+    let z: Double
     
     init(x: Double, y: Double, z: Double) {
         self.x = x
@@ -58,8 +58,8 @@ fileprivate struct GeographicCoordinateData {
     let es: Double
     let esp: Double
     let ind: Double
-    var sourceM: Double = 0
-    var destinationM: Double = 0
+    let sourceM: Double
+    let destinationM: Double
     
     init(mapProjectionType: MapProjectionType, scaleFactor: Double, longitudeCenter: Double, latitudeCenter: Double,
          falseNorthing: Double, falseEasting: Double, major: Double, minor: Double) {
