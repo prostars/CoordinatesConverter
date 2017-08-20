@@ -33,8 +33,8 @@ struct GeographicPoint {
 }
 
 enum MapProjectionType {
-    case GEO
-    case KATEC
+    case WGS_84
+    case KATEC  // TM128
     case TM
     case GRS_80
     case UTMK
@@ -130,11 +130,14 @@ class GeoConverter {
     
     init() {
         geoCoordDatas = [
-            .GEO: GeographicCoordinateData(mapProjectionType: .GEO, scaleFactor: 1, longitudeCenter: 0.0, latitudeCenter: 0.0, falseNorthing: 0.0, falseEasting: 0.0, major: 6378137.0, minor: 6356752.3142),
+            .WGS_84: GeographicCoordinateData(mapProjectionType: .WGS_84, scaleFactor: 1, longitudeCenter: 0.0, latitudeCenter: 0.0, falseNorthing: 0.0, falseEasting: 0.0, major: 6378137.0, minor: 6356752.3142),
             
             .KATEC: GeographicCoordinateData(mapProjectionType: .KATEC, scaleFactor: 0.9999 /* 0.9996 */, longitudeCenter: 2.23402144255274 /* 2.22529479629277 */, latitudeCenter: 0.663225115757845, falseNorthing: 600000.0, falseEasting: 400000.0, major: 6377397.155, minor: 6356078.9633422494),
             
-            .TM: GeographicCoordinateData(mapProjectionType: .TM, scaleFactor: 1, longitudeCenter: 2.21661859489671, latitudeCenter: 0.663225115757845, falseNorthing: 500000.0, falseEasting: 200000.0, major: 6377397.155, minor: 6356078.9633422494),
+            .TM: GeographicCoordinateData(mapProjectionType: .TM, scaleFactor: 1,
+//                longitudeCenter: 2.21656815003280, // 127
+                longitudeCenter: 2.21661859489671, // 127 + 10.485 minute
+                latitudeCenter: 0.663225115757845, falseNorthing: 500000.0, falseEasting: 200000.0, major: 6377397.155, minor: 6356078.9633422494),
             
             .GRS_80: GeographicCoordinateData(mapProjectionType: .GRS_80, scaleFactor: 1, longitudeCenter: 2.21656815003280, latitudeCenter: 0.663225115757845, falseNorthing: 500000.0, falseEasting: 200000.0, major: 6378137, minor: 6356752.3142),
             
@@ -143,7 +146,7 @@ class GeoConverter {
     
     func convert(sourceType: MapProjectionType, destinationType: MapProjectionType, geoPoint: GeographicPoint) -> GeographicPoint? {        
         let sourcePoint = ({ () -> GeographicPoint? in
-            if sourceType == .GEO {
+            if sourceType == .WGS_84 {
                 return GeographicPoint(x: degreeToRadian(geoPoint.x), y: degreeToRadian(geoPoint.y))
             } else {
                 return tmToGeodetic(source: sourceType, inputPoint: geoPoint)
@@ -156,7 +159,7 @@ class GeoConverter {
         }
         
         let destinationPoint = ({ () -> GeographicPoint? in
-            if destinationType == .GEO {
+            if destinationType == .WGS_84 {
                 return GeographicPoint(x: radianToDegree(sourcePoint!.x), y: radianToDegree(sourcePoint!.y))
             } else {
                 return geodeticToTm(destination: destinationType, inputPoint: sourcePoint!)
@@ -170,7 +173,7 @@ class GeoConverter {
         return destinationPoint
     }
     
-    func getDistanceByGeo(from: GeographicPoint, to: GeographicPoint) -> Double {
+    func getDistanceByWGS80(from: GeographicPoint, to: GeographicPoint) -> Double {
         let fromLatitude = degreeToRadian(from.y)
         let fromLongitude = degreeToRadian(from.x)
         let toLatitude = degreeToRadian(to.y)
@@ -188,7 +191,7 @@ class GeoConverter {
         return getDistanceByFromType(fromType: .KATEC, from: from, to: to)
     }
     
-    private func getDistanceByTm(from: GeographicPoint, to: GeographicPoint) -> Double? {
+    private func getDistanceByTM(from: GeographicPoint, to: GeographicPoint) -> Double? {
         return getDistanceByFromType(fromType: .TM, from: from, to: to)
     }
     
@@ -196,20 +199,20 @@ class GeoConverter {
         return getDistanceByFromType(fromType: .UTMK, from: from, to: to)
     }
 
-    private func getDistanceByGrs80(from: GeographicPoint, to: GeographicPoint) -> Double? {
+    private func getDistanceByGRS80(from: GeographicPoint, to: GeographicPoint) -> Double? {
         return getDistanceByFromType(fromType: .GRS_80, from: from, to: to)
     }
 
     
     private func getDistanceByFromType(fromType: MapProjectionType, from: GeographicPoint, to: GeographicPoint) -> Double? {
-        let fromPoint = convert(sourceType: fromType, destinationType: .GEO, geoPoint: from)
-        let toPoint = convert(sourceType: fromType, destinationType: .GEO, geoPoint: to)
+        let fromPoint = convert(sourceType: fromType, destinationType: .WGS_84, geoPoint: from)
+        let toPoint = convert(sourceType: fromType, destinationType: .WGS_84, geoPoint: to)
         
         guard fromPoint != nil && toPoint != nil else {
             return nil
         }
         
-        return getDistanceByGeo(from: fromPoint!, to: toPoint!)
+        return getDistanceByWGS80(from: fromPoint!, to: toPoint!)
     }
     
     private func getTimeBySec(distance: Double) -> Int {
@@ -221,7 +224,7 @@ class GeoConverter {
     }
     
     private func geodeticToTm(destination: MapProjectionType, inputPoint: GeographicPoint) -> GeographicPoint? {
-        let transformedPoint = transform(source: .GEO, destination: destination, geoPoint: inputPoint)
+        let transformedPoint = transform(source: .WGS_84, destination: destination, geoPoint: inputPoint)
         guard transformedPoint != nil else {
             return nil
         }
@@ -327,9 +330,9 @@ class GeoConverter {
             }})()
         
         if let point = pointForInd {
-            return transform(source: source, destination: .GEO, geoPoint: point)
+            return transform(source: source, destination: .WGS_84, geoPoint: point)
         } else if let point = pointForPhi {
-            return transform(source: source, destination: .GEO, geoPoint: point)
+            return transform(source: source, destination: .WGS_84, geoPoint: point)
         }
         
         return nil
