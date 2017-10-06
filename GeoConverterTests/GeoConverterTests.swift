@@ -109,9 +109,44 @@ class GeoConverterTests: XCTestCase {
         let geoPointB = GeographicPoint(x: 128, y: 38)
         
         WHEN("두 좌표간의 거리를 구했을 때")
-        let distance = convert.getDistanceByWGS80(from: geoPointA, to: geoPointB)
+        let distance = convert.getDistanceByGRS80(from: geoPointA, to: geoPointB)
         
         THEN("계산된 거리가 87.69801962758204 과 소숫점 8자리까지 일치해야 한다.")
         XCTAssertEqual(distance.roundTo(places: 8), 87.69801962758204.roundTo(places: 8))
+    }
+    
+    func testGrs80ToGrid() {
+        SCENARIO("GRS80 좌표를 Grid 좌표로 변환한다.")
+        GIVEN("Grs80 좌표 x: 126.98935225645432, y: 37.579871128849334 와")
+        GIVEN("Grs80 좌표 x: 129.02478725562108, y: 35.101148844565955 와")
+        GIVEN("Grs80 좌표 x: 126.54663058817043, y: 33.500946412305076 이 있다.")
+        let convert = GeoConverter()
+        let grs80Point1 = GeographicPoint(x: 126.98935225645432, y: 37.579871128849334)
+        let grs80Point2 = GeographicPoint(x: 129.02478725562108, y: 35.101148844565955)
+        let grs80Point3 = GeographicPoint(x: 126.54663058817043, y: 33.500946412305076)
+        
+        WHEN("Grid 좌표로 변환했을 때")
+        let gridPoint1 = convert.grs80ToGrid(grs80Point1)
+        let gridPoint2 = convert.grs80ToGrid(grs80Point2)
+        let gridPoint3 = convert.grs80ToGrid(grs80Point3)
+        
+        THEN("계산된 좌표가 x: 60, y: 127 과")
+        THEN("계산된 좌표가 x: 97, y: 74 과")
+        THEN("계산된 좌표가 x: 53, y: 38 이어야 한다.")
+        XCTAssertNotNil(gridPoint1)
+        if let point = gridPoint1 {
+            XCTAssertEqual(point.x, 60)
+            XCTAssertEqual(point.y, 127)
+        }
+        XCTAssertNotNil(gridPoint2)
+        if let point = gridPoint2 {
+            XCTAssertEqual(point.x, 97)
+            XCTAssertEqual(point.y, 74)
+        }
+        XCTAssertNotNil(gridPoint3)
+        if let point = gridPoint3 {
+            XCTAssertEqual(point.x, 53)
+            XCTAssertEqual(point.y, 38)
+        }
     }
 }

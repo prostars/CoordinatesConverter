@@ -32,12 +32,24 @@ struct GeographicPoint {
     }
 }
 
+struct NisMapInfo {
+    let re: Double      = 6371.00877    // 사용할 지구 반경 [km]
+    let grid: Double    = 5.0           // 격자 간격 [km]
+    let slat1: Double   = 30.0          // 표준 위도 [degree]
+    let slat2: Double   = 60.0          // 표준 위도 [degree]
+    let olon: Double    = 126.0         // 기준점의 경도 [degree]
+    let olat: Double    = 38.0          // 기준점의 위도 [degree]
+    let xo: Double      = 210 / 5.0     // 기준점의 X 좌표 [격자 거리]
+    let yo: Double      = 675 / 5.0     // 기준점의 Y 좌표 [격자 거리]
+}
+
 enum MapProjectionType {
     case WGS_84
     case KATEC  // TM128
     case TM
     case GRS_80
     case UTMK
+    case GRID   // for NIA Open API
 }
 
 fileprivate enum DatumParam: Double {
@@ -173,7 +185,7 @@ class GeoConverter {
         return destinationPoint
     }
     
-    func getDistanceByWGS80(from: GeographicPoint, to: GeographicPoint) -> Double {
+    func getDistanceByGRS80(from: GeographicPoint, to: GeographicPoint) -> Double {
         let fromLatitude = degreeToRadian(from.y)
         let fromLongitude = degreeToRadian(from.x)
         let toLatitude = degreeToRadian(to.y)
@@ -185,6 +197,38 @@ class GeoConverter {
         let a = pow(sin(latitude / 2), 2) + cos(fromLatitude) * cos(toLatitude) * pow(sin(longitude / 2), 2)
         
         return 6376.5 * 2 * atan2(sqrt(a), sqrt(1 - a))
+    }
+    
+    // GeographicPoint.x : longitude, GeographicPoint.y : latitude
+    func grs80ToGrid(_ point: GeographicPoint) -> GeographicPoint? {
+        let mapInfo = NisMapInfo()
+        let pi = asin(1.0) * 2.0
+        let degRad = pi / 180.0
+        let re = mapInfo.re / mapInfo.grid
+        let slat1 = mapInfo.slat1 * degRad
+        let slat2 = mapInfo.slat2 * degRad
+        let olon = mapInfo.olon * degRad
+        let olat = mapInfo.olat * degRad
+        var sn = tan(pi * 0.25 + slat2 * 0.5) / tan(pi * 0.25 + slat1 * 0.5)
+        sn = log(cos(slat1) / cos(slat2)) / log(sn)
+        var sf = tan(pi * 0.25 + slat1 * 0.5)
+        sf = pow(sf, sn) * cos(slat1) / sn
+        var ro = tan(pi * 0.25 + olat * 0.5)
+        ro = re * sf / pow(ro, sn)
+        
+        var ra = tan(pi * 0.25 + point.y * degRad * 0.5)
+        ra = re * sf / pow(ra, sn)
+        var theta = point.x * degRad - olon;
+        if theta > pi {
+            theta -= 2.0 * pi
+        } else if theta < -pi {
+            theta += 2.0 * pi
+        }
+        theta *= sn
+        
+        let grs80Point = GeographicPoint(x: (ra * sin(theta)) + mapInfo.xo, y: (ro - ra * cos(theta)) + mapInfo.yo)
+        
+        return GeographicPoint(x: floor(grs80Point.x + 1.5), y: floor(grs80Point.y + 1.5))
     }
     
     private func getDistanceByKatec(from: GeographicPoint, to: GeographicPoint) -> Double? {
@@ -212,7 +256,7 @@ class GeoConverter {
             return nil
         }
         
-        return getDistanceByWGS80(from: fromPoint!, to: toPoint!)
+        return getDistanceByGRS80(from: fromPoint!, to: toPoint!)
     }
     
     private func getTimeBySec(distance: Double) -> Int {
