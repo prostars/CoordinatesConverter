@@ -185,7 +185,7 @@ class GeoConverter {
         return destinationPoint
     }
     
-    func getDistanceByGRS80(from: GeographicPoint, to: GeographicPoint) -> Double {
+    func getDistanceByWGS84(from: GeographicPoint, to: GeographicPoint) -> Double {
         let fromLatitude = degreeToRadian(from.y)
         let fromLongitude = degreeToRadian(from.x)
         let toLatitude = degreeToRadian(to.y)
@@ -200,7 +200,7 @@ class GeoConverter {
     }
     
     // GeographicPoint.x : longitude, GeographicPoint.y : latitude
-    func grs80ToGrid(_ point: GeographicPoint) -> GeographicPoint? {
+    func wgs84ToGrid(_ point: GeographicPoint) -> GeographicPoint? {
         let mapInfo = NisMapInfo()
         let pi = asin(1.0) * 2.0
         let degRad = pi / 180.0
@@ -226,9 +226,9 @@ class GeoConverter {
         }
         theta *= sn
         
-        let grs80Point = GeographicPoint(x: (ra * sin(theta)) + mapInfo.xo, y: (ro - ra * cos(theta)) + mapInfo.yo)
+        let wgs84Point = GeographicPoint(x: (ra * sin(theta)) + mapInfo.xo, y: (ro - ra * cos(theta)) + mapInfo.yo)
         
-        return GeographicPoint(x: floor(grs80Point.x + 1.5), y: floor(grs80Point.y + 1.5))
+        return GeographicPoint(x: floor(wgs84Point.x + 1.5), y: floor(wgs84Point.y + 1.5))
     }
     
     private func getDistanceByKatec(from: GeographicPoint, to: GeographicPoint) -> Double? {
@@ -256,7 +256,7 @@ class GeoConverter {
             return nil
         }
         
-        return getDistanceByGRS80(from: fromPoint!, to: toPoint!)
+        return getDistanceByWGS84(from: fromPoint!, to: toPoint!)
     }
     
     private func getTimeBySec(distance: Double) -> Int {
