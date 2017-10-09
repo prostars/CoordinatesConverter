@@ -9,8 +9,8 @@
 import Foundation
 
 struct GeographicPoint {
-    let x: Double
-    let y: Double
+    let x: Double   // longitude (경도)
+    let y: Double   // latitude (위도)
     let z: Double
     
     init(x: Double, y: Double, z: Double) {
