@@ -13,8 +13,4 @@ http://www.androidpub.com/1043970 에 공개해 주신 분의 자바 코드를 �
 
 도움을 바랍니다.
 
-코드는 공개합니다.
-https://github.com/prostars/CoordinatesConverter
-
-
-
+https://prostars.net/231
